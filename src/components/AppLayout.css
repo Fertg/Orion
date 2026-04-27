@@ -1,0 +1,122 @@
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: var(--s-5) var(--s-4);
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+  margin-bottom: var(--s-7);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  flex: 1;
+}
+
+.nav-item {
+  padding: var(--s-2) var(--s-3);
+  color: var(--ink-soft);
+  font-size: var(--t-body);
+  font-weight: 400;
+  border-radius: var(--radius);
+  transition: color var(--transition), background var(--transition);
+  letter-spacing: -0.005em;
+}
+
+.nav-item:hover {
+  color: var(--ink);
+  background: var(--bg-elev);
+}
+
+.nav-item.active {
+  color: var(--ink);
+  background: var(--bg-elev);
+  font-weight: 500;
+}
+
+.sidebar-footer {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line-soft);
+}
+
+.user-info {
+  padding: 0 var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.user-name {
+  font-size: var(--t-body);
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: var(--t-small);
+  color: var(--ink-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  width: 100%;
+  text-align: left;
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--t-small);
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.logout-btn:hover {
+  background: var(--bg-elev);
+}
+
+.main {
+  padding: var(--s-7) var(--s-8);
+  max-width: 980px;
+}
+
+/* Responsive — mobile */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: var(--s-3) var(--s-4);
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar-brand { margin-bottom: 0; margin-right: var(--s-5); }
+  .nav { flex-direction: row; gap: var(--s-1); }
+  .sidebar-footer {
+    border-top: none;
+    padding-top: 0;
+    margin-left: auto;
+  }
+  .user-info { display: none; }
+  .main { padding: var(--s-5) var(--s-4); }
+}

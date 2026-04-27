@@ -1,27 +1,14 @@
-# Orion · Backend
+# Orion · Frontend
 
-API REST para Orion — control de gastos personales con categorización inteligente.
+Cliente web de Orion — control de gastos minimalista.
 
 ## Stack
 
-- Node.js 20+ (ESM)
-- Express
-- PostgreSQL 14+
-- Google OAuth2 (vía `google-auth-library`)
-- JWT
-- Zod para validación
-
-## Estructura
-
-```
-src/
-├── config/         # Carga y validación de env
-├── db/             # Pool, schema, migraciones, seed data
-├── middleware/     # Auth, error handler
-├── routes/         # auth, expenses, categories
-├── services/       # Lógica de negocio
-└── utils/          # Helpers (normalización de texto, etc.)
-```
+- React 18 + Vite
+- React Router 6
+- CSS custom (sin librerías de UI)
+- Google Identity Services para login
+- Tipografía: Inter + IBM Plex Mono (vía CDN)
 
 ## Setup local
 
@@ -31,65 +18,98 @@ npm install
 
 # 2. Configurar variables de entorno
 cp .env.example .env
-# editar .env con tus valores reales
+# editar .env con tus valores
+```
 
-# 3. Crear la BBDD (si no existe)
-createdb orion
+Variables necesarias:
+- `VITE_API_URL` — URL del backend (ej: `http://localhost:3001` en local, `https://orion-production-xxxx.up.railway.app` en producción)
+- `VITE_GOOGLE_CLIENT_ID` — el Client ID público de Google OAuth (NO el Secret)
 
-# 4. Aplicar el schema
-npm run db:migrate
-
-# 5. Arrancar en modo dev (auto-reload)
+```bash
+# 3. Arrancar en dev
 npm run dev
 ```
 
-El servidor levanta en `http://localhost:3001`.
+Abre http://localhost:5173
 
-## Configurar Google OAuth
+## Cuenta Google — orígenes autorizados
 
-1. Ve a https://console.cloud.google.com/apis/credentials
-2. Crea un proyecto si no tienes
-3. Crea credenciales OAuth 2.0 tipo "Aplicación web"
-4. Orígenes autorizados: `http://localhost:5173` (frontend dev) y la URL de Railway en producción
-5. URIs de redirección: no hace falta (usamos Google Identity Services en frontend)
-6. Copia `Client ID` y `Client Secret` a tu `.env`
+En Google Cloud Console, en las credenciales OAuth, asegúrate de tener estos orígenes:
+- `http://localhost:5173` (dev)
+- La URL de producción del frontend cuando lo despliegues
 
-## Endpoints
+Si no, el botón de login fallará silenciosamente.
 
-### Auth
-- `POST /auth/google` — body `{ idToken }` → `{ token, user }`
-- `GET /auth/me` — usuario autenticado
+## Estructura
 
-### Categorías
-- `GET /categories`
-- `POST /categories` — `{ name, color, icon? }`
-- `PATCH /categories/:id`
-- `DELETE /categories/:id` — soft delete
+```
+src/
+├── api/
+│   └── client.js        # Cliente HTTP con manejo de JWT
+├── auth/
+│   ├── AuthContext.jsx  # Provider + hook useAuth
+│   └── useGoogleSignIn.js  # Hook para Google Identity Services
+├── components/
+│   ├── AppLayout.jsx    # Sidebar + main
+│   ├── Logo.jsx         # Logo SVG inline
+│   ├── ProtectedRoute.jsx
+│   └── QuickExpense.jsx # Input estilo terminal con preview
+├── pages/
+│   ├── Login.jsx        # Pantalla de login
+│   ├── Dashboard.jsx    # Resumen del mes (big number + ritmo + categorías)
+│   ├── History.jsx      # Lista densa estilo extracto
+│   └── Settings.jsx     # Gestión de categorías
+├── styles/
+│   ├── tokens.css       # CSS variables (paleta, tipografía, spacing)
+│   └── components.css   # Componentes compartidos (.btn, .input, etc.)
+├── utils/
+│   ├── format.js        # Formateo EUR, fechas
+│   └── parseExpense.js  # Parser del input "tipo terminal"
+├── App.jsx
+└── main.jsx
+```
 
-### Gastos
-- `GET /expenses?from=&to=&limit=&offset=`
-- `POST /expenses` — `{ description, amountCents, occurredAt, categoryId?, notes? }`
-- `POST /expenses/suggest` — `{ description }` → sugiere categoría sin crear
-- `PATCH /expenses/:id`
-- `DELETE /expenses/:id`
-- `GET /expenses/dashboard` — datos agregados del mes
+## Diseño
 
-## Cómo funciona la categorización
+**Paleta minimal**:
+- Fondo: `#FAFAF7` (blanco hueso)
+- Texto: `#1A1A1A`
+- Acento: `#A8472C` (terracota)
+- Bordes: `#E5E5E0` (1px finos, sin sombras)
 
-1. Cada usuario nuevo recibe **11 categorías** (set ampliado) y **~150 keywords seed** con comercios típicos en España.
-2. Al crear un gasto sin categoría explícita, el motor busca matches en las keywords del usuario, suma pesos por categoría (las keywords más largas pesan más) y devuelve la ganadora.
-3. Cada vez que el usuario asigna o corrige manualmente una categoría, las palabras significativas de la descripción se incorporan a `category_keywords` con peso incremental. Esto significa que **Orion aprende los patrones de gasto de cada usuario** sin depender de modelos externos.
+**Tipografía**:
+- Inter para UI
+- IBM Plex Mono para números (tabular-nums)
 
-## Despliegue en Railway
+**Principios**:
+- Sin gradientes, sin sombras innecesarias
+- Jerarquía por tamaño y espacio, no por color
+- Animaciones solo de fade-in al cambiar de página
+- Cero emojis decorativos
 
-1. Crea un nuevo proyecto en Railway desde tu repo
-2. Añade un plugin de PostgreSQL — Railway expone `DATABASE_URL` automáticamente
-3. Añade las variables de entorno: `JWT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `FRONTEND_URL`, `NODE_ENV=production`
-4. Railway detecta `npm start` automáticamente
-5. Tras el primer deploy, ejecuta el migrate desde la consola de Railway: `npm run db:migrate`
+## Atajos del input rápido
 
-## Próximos pasos
+El campo "tipo terminal" del Dashboard parsea:
+- `Mercadona 47,30 ayer` → comercio + cantidad + fecha
+- `Repsol 60` → comercio + cantidad (hoy por defecto)
+- `cafe 2,5 hace 3 dias` → fecha relativa
+- `Spotify 9.99 25/04` → fecha explícita
+- `Compra 47.30 2026-04-15` → fecha ISO
 
-- [ ] Frontend (React + Vite) — sesión 2
-- [ ] OCR de tickets — sesión 4
-- [ ] Apple Sign In — cuando tengas Apple Developer
+Mientras escribes, sugiere automáticamente la categoría según el motor del backend. Puedes corregirla con un click — y el sistema aprende.
+
+## Build & deploy en Railway
+
+```bash
+npm run build
+```
+
+Genera `dist/` con assets estáticos.
+
+Para Railway:
+1. Crea un nuevo servicio desde tu repo de frontend
+2. Variables: `VITE_API_URL` y `VITE_GOOGLE_CLIENT_ID`
+3. Railway detecta `npm run build` y `npm start` (que sirve con `vite preview`)
+4. Genera dominio público y añádelo en:
+   - Google Cloud Console → Credenciales OAuth → Orígenes autorizados
+   - Backend de Railway → variable `FRONTEND_URL`

@@ -1,0 +1,62 @@
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-5);
+  background: var(--bg);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  padding: var(--s-7) var(--s-5);
+}
+
+.login-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--s-6);
+  color: var(--ink);
+}
+
+.login-title {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--s-2);
+  color: var(--ink);
+}
+
+.login-subtitle {
+  font-size: var(--t-body);
+  color: var(--ink-muted);
+  margin: 0 0 var(--s-7);
+  letter-spacing: -0.005em;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  margin-bottom: var(--s-4);
+}
+
+.google-btn-wrap {
+  /* Google renderiza su propio botón aquí dentro */
+  display: flex;
+  justify-content: center;
+}
+
+.login-error {
+  margin: var(--s-4) 0;
+  text-align: left;
+}
+
+.login-foot {
+  font-size: var(--t-micro);
+  color: var(--ink-muted);
+  margin-top: var(--s-6);
+  line-height: 1.5;
+}

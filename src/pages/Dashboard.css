@@ -1,0 +1,238 @@
+.dashboard {
+  max-width: 880px;
+}
+
+.dashboard-header {
+  margin-bottom: var(--s-5);
+}
+
+.month-label {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+/* ===== Big number ===== */
+.big-number {
+  margin-bottom: var(--s-8);
+}
+
+.big-number-label {
+  font-size: var(--t-small);
+  color: var(--ink-muted);
+  margin-bottom: var(--s-2);
+}
+
+.big-number-value {
+  display: flex;
+  align-items: baseline;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.big-int {
+  font-size: var(--t-display);
+}
+
+.big-dec {
+  font-size: 22px;
+  color: var(--ink-muted);
+  margin-left: 4px;
+}
+
+.big-delta {
+  margin-top: var(--s-3);
+  font-size: var(--t-small);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.big-delta.up { color: var(--negative); }
+.big-delta.down { color: var(--positive); }
+
+.big-delta-label {
+  color: var(--ink-muted);
+  font-weight: 400;
+  margin-left: var(--s-1);
+}
+
+/* ===== Grid ===== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-6);
+}
+
+@media (max-width: 880px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.panel-block {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s-5);
+}
+
+.block-title {
+  font-size: var(--t-h3);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--s-4);
+  color: var(--ink);
+}
+
+/* ===== Ritmo ===== */
+.pace-stats {
+  display: flex;
+  gap: var(--s-7);
+  margin-bottom: var(--s-5);
+}
+
+.stat-label {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.pace-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 60px;
+  margin-bottom: var(--s-2);
+}
+
+.pace-bar {
+  flex: 1;
+  min-width: 3px;
+  background: var(--ink);
+  min-height: 1px;
+  transition: opacity var(--transition);
+}
+
+.pace-bar.future {
+  background: var(--line);
+}
+
+.pace-bar:hover {
+  opacity: 0.7;
+}
+
+.pace-axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-muted);
+  margin-bottom: var(--s-4);
+}
+
+.pace-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-small);
+}
+
+.pace-progress-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.pace-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  transition: width var(--transition);
+}
+
+.pace-progress-text {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* ===== Categorías ===== */
+.cat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.cat-row {
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  grid-template-rows: auto auto;
+  gap: 6px var(--s-3);
+}
+
+.cat-row-head {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cat-row-name {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-body);
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
+.cat-row-count {
+  font-size: var(--t-micro);
+  color: var(--ink-muted);
+  margin-left: 4px;
+}
+
+.cat-row-amount {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.cat-row-bar {
+  height: 2px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.cat-row-fill {
+  height: 100%;
+  transition: width var(--transition);
+}
+
+.cat-row-pct {
+  font-size: var(--t-micro);
+  color: var(--ink-muted);
+  text-align: right;
+}
+
+.empty-state {
+  padding: var(--s-5) 0;
+  color: var(--ink-muted);
+  font-size: var(--t-small);
+  font-style: italic;
+}

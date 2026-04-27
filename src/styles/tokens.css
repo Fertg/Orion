@@ -1,0 +1,122 @@
+/* ========================================================
+   Orion · Tokens y reset
+   Diseño minimal — sin gradientes, sin sombras, jerarquía
+   por tipografía y espacio en blanco.
+   ======================================================== */
+
+:root {
+  /* Color */
+  --bg:           #FAFAF7;
+  --bg-elev:     #F2F2EC;
+  --ink:          #1A1A1A;
+  --ink-soft:     #4A4A4A;
+  --ink-muted:    #8B8B85;
+  --line:         #E5E5E0;
+  --line-soft:    #EDEDE8;
+  --accent:       #A8472C;
+  --accent-soft:  #C75D3F;
+  --positive:     #5C6B47;
+  --negative:     #A8472C;
+
+  /* Categorías (mismas que el backend) */
+  --cat-comida:        #7B6F47;
+  --cat-coche:         #4A5568;
+  --cat-salidas:       #A8472C;
+  --cat-hogar:         #5D6B5C;
+  --cat-salud:         #8B6F8E;
+  --cat-ocio:          #B8893E;
+  --cat-suscripciones: #4A6670;
+  --cat-viajes:        #6B7B8C;
+  --cat-regalos:       #A06B7E;
+  --cat-educacion:     #5C6B47;
+  --cat-otros:         #8B8B8B;
+
+  /* Tipografía */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+
+  /* Espaciado (escala de 4) */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  24px;
+  --s-6:  32px;
+  --s-7:  48px;
+  --s-8:  64px;
+  --s-9:  96px;
+
+  /* Tipografía — escala */
+  --t-display:  56px;
+  --t-h1:       32px;
+  --t-h2:       22px;
+  --t-h3:       16px;
+  --t-body:     14px;
+  --t-small:    12px;
+  --t-micro:    11px;
+
+  /* Otros */
+  --radius:     2px;
+  --radius-md:  4px;
+  --transition: 120ms ease-out;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  font-feature-settings: 'cv11', 'ss01';
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* Utilidades */
+.mono { font-family: var(--font-mono); font-feature-settings: 'zero'; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Selección de texto en accent */
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Scrollbar discreta */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 0;
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+
+/* Focus visible */
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
