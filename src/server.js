@@ -9,12 +9,11 @@ import categoriesRoutes from './routes/categories.js';
 
 const app = express();
 
-app.use(cors({
-  origin: config.frontendUrl,
-  credentials: true,
-}));
+// Railway pone un proxy delante. Confiamos en el primer hop
+// para que rate-limit y otras libs lean bien la IP del cliente.
+app.set('trust proxy', 1);
 
-app.use(express.json({ limit: '1mb' }));
+app.use(cors({limit: '1mb' }));
 
 // Rate limit general
 app.use(rateLimit({
