@@ -18,8 +18,14 @@ const googleSchema = z.object({
  */
 router.post('/google', async (req, res, next) => {
   try {
+    console.log('[auth/google] petición recibida, body keys:', Object.keys(req.body || {}));
+
     const { idToken } = googleSchema.parse(req.body);
+    console.log('[auth/google] idToken parseado, longitud:', idToken.length);
+
     const profile = await verifyGoogleIdToken(idToken);
+    console.log('[auth/google] token verificado, email:', profile.email);
+
     const user = await findOrCreateUser({
       provider: 'google',
       providerId: profile.providerId,
@@ -27,7 +33,11 @@ router.post('/google', async (req, res, next) => {
       name: profile.name,
       avatarUrl: profile.avatarUrl,
     });
+    console.log('[auth/google] usuario:', user.id);
+
     const token = signJwt(user.id);
+    console.log('[auth/google] JWT firmado, devolviendo respuesta');
+
     res.json({
       token,
       user: {
@@ -39,6 +49,7 @@ router.post('/google', async (req, res, next) => {
       },
     });
   } catch (err) {
+    console.error('[auth/google] ERROR:', err.message);
     next(err);
   }
 });

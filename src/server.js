@@ -2,10 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { config } from './config/index.js';
-import { errorHandler } from './middleware/error.js';
+import { errorHandler, asyncErrorBoundary } from './middleware/error.js';
 import authRoutes from './routes/auth.js';
 import expensesRoutes from './routes/expenses.js';
 import categoriesRoutes from './routes/categories.js';
+
+asyncErrorBoundary();
 
 const app = express();
 
@@ -13,12 +15,42 @@ const app = express();
 // para que rate-limit y otras libs lean bien la IP del cliente.
 app.set('trust proxy', 1);
 
+// CORS — admite varios orígenes separados por coma en FRONTEND_URL,
+// y también acepta peticiones sin origen (curl, health checks).
+const allowedOrigins = config.frontendUrl
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+console.log(`[cors] Orígenes permitidos: ${allowedOrigins.join(', ')}`);
+
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: (origin, callback) => {
+    // Sin origen (curl, server-to-server) → permitir
+    if (!origin) return callback(null, true);
+
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+
+    console.warn(`[cors] Bloqueado: ${origin} (esperado: ${allowedOrigins.join(', ')})`);
+    callback(new Error(`Origen no permitido: ${origin}`));
+  },
   credentials: true,
 }));
 
 app.use(express.json({ limit: '1mb' }));
+
+// Logger simple — útil para diagnosticar en producción
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    console.log(`${req.method} ${req.path} → ${res.statusCode} (${ms}ms)`);
+  });
+  next();
+});
 
 // Rate limit general
 app.use(rateLimit({
