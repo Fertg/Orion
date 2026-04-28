@@ -6,6 +6,7 @@ import { errorHandler, asyncErrorBoundary } from './middleware/error.js';
 import authRoutes from './routes/auth.js';
 import expensesRoutes from './routes/expenses.js';
 import categoriesRoutes from './routes/categories.js';
+import budgetsRoutes from './routes/budgets.js';
 
 asyncErrorBoundary();
 
@@ -67,6 +68,7 @@ app.get('/health', (req, res) => res.json({ ok: true, service: 'orion-api' }));
 app.use('/auth', authRoutes);
 app.use('/expenses', expensesRoutes);
 app.use('/categories', categoriesRoutes);
+app.use('/budgets', budgetsRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));

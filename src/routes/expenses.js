@@ -30,18 +30,20 @@ const updateSchema = z.object({
 });
 
 /**
- * GET /expenses?from=2026-04-01&to=2026-04-30&limit=50&offset=0
+ * GET /expenses?from=&to=&categoryId=&search=&limit=&offset=
  */
 router.get('/', async (req, res, next) => {
   try {
-    const { from, to, limit, offset } = req.query;
-    const expenses = await listExpenses(req.user.id, {
+    const { from, to, categoryId, search, limit, offset } = req.query;
+    const result = await listExpenses(req.user.id, {
       from: from || null,
       to: to || null,
-      limit: limit ? parseInt(limit, 10) : 50,
+      categoryId: categoryId || null,
+      search: search || null,
+      limit: limit ? Math.min(parseInt(limit, 10), 500) : 200,
       offset: offset ? parseInt(offset, 10) : 0,
     });
-    res.json({ expenses });
+    res.json(result);
   } catch (err) {
     next(err);
   }

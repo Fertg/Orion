@@ -82,8 +82,16 @@ export async function deleteExpense(userId, expenseId) {
 
 /**
  * Lista de gastos paginada.
+ * Soporta filtros: rango de fechas, categoría, búsqueda por texto.
  */
-export async function listExpenses(userId, { limit = 50, offset = 0, from = null, to = null } = {}) {
+export async function listExpenses(userId, {
+  limit = 50,
+  offset = 0,
+  from = null,
+  to = null,
+  categoryId = null,
+  search = null,
+} = {}) {
   const params = [userId];
   let where = `e.user_id = $1`;
   if (from) {
@@ -94,9 +102,22 @@ export async function listExpenses(userId, { limit = 50, offset = 0, from = null
     params.push(to);
     where += ` AND e.occurred_at <= $${params.length}`;
   }
+  if (categoryId) {
+    params.push(categoryId);
+    where += ` AND e.category_id = $${params.length}`;
+  }
+  if (search && search.trim()) {
+    params.push(`%${search.trim().toLowerCase()}%`);
+    where += ` AND (LOWER(e.description) LIKE $${params.length} OR LOWER(e.merchant) LIKE $${params.length})`;
+  }
   params.push(limit, offset);
   const { rows } = await query(
-    `SELECT e.*, c.name AS category_name, c.color AS category_color, c.slug AS category_slug
+    `SELECT
+       e.id, e.user_id, e.category_id, e.amount_cents, e.currency,
+       e.description, e.merchant, e.source, e.notes,
+       e.occurred_at::text AS occurred_at,
+       e.created_at, e.updated_at,
+       c.name AS category_name, c.color AS category_color, c.slug AS category_slug
      FROM expenses e
      LEFT JOIN categories c ON c.id = e.category_id
      WHERE ${where}
@@ -104,7 +125,21 @@ export async function listExpenses(userId, { limit = 50, offset = 0, from = null
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
-  return rows;
+
+  // Total y count agregados con los mismos filtros (sin LIMIT/OFFSET)
+  const aggParams = params.slice(0, -2);
+  const aggQuery = await query(
+    `SELECT COALESCE(SUM(e.amount_cents), 0)::bigint AS total, COUNT(e.id)::int AS count
+     FROM expenses e
+     WHERE ${where}`,
+    aggParams
+  );
+
+  return {
+    expenses: rows,
+    totalCents: Number(aggQuery.rows[0].total),
+    count: aggQuery.rows[0].count,
+  };
 }
 
 /**
@@ -167,6 +202,21 @@ export async function getDashboardData(userId, referenceDate = new Date()) {
     [userId, startOfMonth.toISOString().slice(0, 10), startOfNextMonth.toISOString().slice(0, 10)]
   );
 
+  // Presupuesto global vigente (categoryId IS NULL)
+  const budgetRow = await query(
+    `SELECT monthly_cents
+     FROM budgets
+     WHERE user_id = $1 AND category_id IS NULL
+       AND effective_from <= CURRENT_DATE
+       AND (effective_to IS NULL OR effective_to >= CURRENT_DATE)
+     ORDER BY effective_from DESC
+     LIMIT 1`,
+    [userId]
+  );
+  const monthlyBudgetCents = budgetRow.rows[0]
+    ? Number(budgetRow.rows[0].monthly_cents)
+    : null;
+
   const currentTotal = Number(currentMonth.rows[0].total);
   const prevTotal = Number(prevMonth.rows[0].total);
 
@@ -188,6 +238,7 @@ export async function getDashboardData(userId, referenceDate = new Date()) {
     previousMonth: {
       totalCents: prevTotal,
     },
+    monthlyBudgetCents,
     deltaVsPreviousPct: prevTotal === 0 ? null : ((currentTotal - prevTotal) / prevTotal) * 100,
     byCategory: byCategory.rows.map((r) => ({
       id: r.id,
