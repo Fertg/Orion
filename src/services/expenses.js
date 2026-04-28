@@ -85,14 +85,14 @@ export async function deleteExpense(userId, expenseId) {
  */
 export async function listExpenses(userId, { limit = 50, offset = 0, from = null, to = null } = {}) {
   const params = [userId];
-  let where = `user_id = $1`;
+  let where = `e.user_id = $1`;
   if (from) {
     params.push(from);
-    where += ` AND occurred_at >= $${params.length}`;
+    where += ` AND e.occurred_at >= $${params.length}`;
   }
   if (to) {
     params.push(to);
-    where += ` AND occurred_at <= $${params.length}`;
+    where += ` AND e.occurred_at <= $${params.length}`;
   }
   params.push(limit, offset);
   const { rows } = await query(
