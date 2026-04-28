@@ -103,6 +103,28 @@ CREATE TABLE IF NOT EXISTS budgets (
 CREATE INDEX IF NOT EXISTS idx_budgets_user ON budgets(user_id);
 
 -- ============================================================
+-- SUSCRIPCIONES / GASTOS RECURRENTES
+-- Ej: Spotify 9,99€ todos los meses el día 5
+-- ============================================================
+CREATE TABLE IF NOT EXISTS recurring_expenses (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  category_id         UUID REFERENCES categories(id) ON DELETE SET NULL,
+  description         TEXT NOT NULL,
+  amount_cents        BIGINT NOT NULL CHECK (amount_cents > 0),
+  currency            TEXT NOT NULL DEFAULT 'EUR',
+  day_of_month        INTEGER NOT NULL CHECK (day_of_month BETWEEN 1 AND 31),
+  start_date          DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date            DATE,                       -- NULL = indefinido
+  paused_at           TIMESTAMPTZ,                -- NULL = activa
+  last_generated_for  DATE,                       -- último período generado (1er día del mes)
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_recurring_user ON recurring_expenses(user_id) WHERE paused_at IS NULL;
+
+-- ============================================================
 -- TRIGGER: actualizar updated_at automáticamente
 -- ============================================================
 CREATE OR REPLACE FUNCTION set_updated_at()
@@ -121,4 +143,9 @@ CREATE TRIGGER trg_users_updated
 DROP TRIGGER IF EXISTS trg_expenses_updated ON expenses;
 CREATE TRIGGER trg_expenses_updated
   BEFORE UPDATE ON expenses
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_recurring_updated ON recurring_expenses;
+CREATE TRIGGER trg_recurring_updated
+  BEFORE UPDATE ON recurring_expenses
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();

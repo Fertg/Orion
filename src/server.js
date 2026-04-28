@@ -7,6 +7,8 @@ import authRoutes from './routes/auth.js';
 import expensesRoutes from './routes/expenses.js';
 import categoriesRoutes from './routes/categories.js';
 import budgetsRoutes from './routes/budgets.js';
+import recurringRoutes from './routes/recurring.js';
+import { generateDueRecurringExpenses } from './services/recurring.js';
 
 asyncErrorBoundary();
 
@@ -69,6 +71,7 @@ app.use('/auth', authRoutes);
 app.use('/expenses', expensesRoutes);
 app.use('/categories', categoriesRoutes);
 app.use('/budgets', budgetsRoutes);
+app.use('/recurring', recurringRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
@@ -78,4 +81,17 @@ app.use(errorHandler);
 
 app.listen(config.port, () => {
   console.log(`✦ Orion API en http://localhost:${config.port} [${config.nodeEnv}]`);
+
+  // Generar suscripciones pendientes al arrancar
+  generateDueRecurringExpenses().catch((err) => {
+    console.error('[recurring] Error en generación inicial:', err);
+  });
+
+  // Y reintentar cada 6 horas — barato y suficiente para una app personal
+  const SIX_HOURS = 6 * 60 * 60 * 1000;
+  setInterval(() => {
+    generateDueRecurringExpenses().catch((err) => {
+      console.error('[recurring] Error en generación periódica:', err);
+    });
+  }, SIX_HOURS);
 });
